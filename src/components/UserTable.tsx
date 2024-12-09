@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Table,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 // Define custom styles
 const useStyles = makeStyles({
@@ -41,18 +42,32 @@ const useStyles = makeStyles({
 const UsersList: React.FC = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-
-  const users = [
-    { id: 1, name: "John Doe", p5Balance: 500, rewardBalance: 200 },
-    { id: 2, name: "Jane Smith", p5Balance: 300, rewardBalance: 150 },
-    { id: 3, name: "Alice Johnson", p5Balance: 400, rewardBalance: 180 },
-  ];
+  const [users, setUsers] = useState<any[]>([]); // State to store the fetched users
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
 
   const theme = createTheme({
     palette: {
-      mode: "dark", 
+      mode: "dark",
     },
   });
+
+  // Fetch users data from the API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("http://localhost:3000/users");
+        setUsers(response.data); // Assuming the API returns an array of users
+      } catch (err) {
+        setError("Failed to fetch users.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []); 
 
   return (
     <ThemeProvider theme={theme}>
@@ -68,6 +83,10 @@ const UsersList: React.FC = () => {
           </Button>
         </div>
 
+        {/* Show loading or error message */}
+        {loading && <Typography variant="h6">Loading...</Typography>}
+        {error && <Typography variant="h6" color="error">{error}</Typography>}
+
         <TableContainer component={Paper}>
           <Table className={classes.table} aria-label="users table">
             <TableHead>
@@ -76,7 +95,7 @@ const UsersList: React.FC = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>P5 Balance</TableCell>
                 <TableCell>Reward Balance</TableCell>
-                <TableCell>Login</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
 
@@ -91,7 +110,7 @@ const UsersList: React.FC = () => {
                     <Button
                       className={classes.createButton}
                       variant="contained"
-                      onClick={() => navigate(`/${user.id}`)}
+                      onClick={() => navigate(`/users/${user._id}`)} 
                     >
                       Edit
                     </Button>

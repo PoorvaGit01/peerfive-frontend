@@ -39,12 +39,20 @@ const useStyles = makeStyles({
   },
 });
 
+// Define the user type
+interface User {
+  _id: string;
+  name: string;
+  p5Balance: number;
+  rewardBalance: number;
+}
+
 const UsersList: React.FC = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const [users, setUsers] = useState<any[]>([]); // State to store the fetched users
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const theme = createTheme({
     palette: {
@@ -52,12 +60,12 @@ const UsersList: React.FC = () => {
     },
   });
 
-  // Fetch users data from the API
+  // Fetch users from the API
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:3000/users");
+        const response = await axios.get<User[]>("http://localhost:3000/users");
         setUsers(response.data); // Assuming the API returns an array of users
       } catch (err) {
         setError("Failed to fetch users.");
@@ -67,7 +75,7 @@ const UsersList: React.FC = () => {
     };
 
     fetchUsers();
-  }, []); 
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -83,9 +91,13 @@ const UsersList: React.FC = () => {
           </Button>
         </div>
 
-        {/* Show loading or error message */}
+        {/* Show loading or error messages */}
         {loading && <Typography variant="h6">Loading...</Typography>}
-        {error && <Typography variant="h6" color="error">{error}</Typography>}
+        {error && (
+          <Typography variant="h6" color="error">
+            {error}
+          </Typography>
+        )}
 
         <TableContainer component={Paper}>
           <Table className={classes.table} aria-label="users table">
@@ -101,7 +113,7 @@ const UsersList: React.FC = () => {
 
             <TableBody>
               {users.map((user, index) => (
-                <TableRow key={user.id}>
+                <TableRow key={user._id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.p5Balance}</TableCell>
@@ -110,7 +122,7 @@ const UsersList: React.FC = () => {
                     <Button
                       className={classes.createButton}
                       variant="contained"
-                      onClick={() => navigate(`/users/${user._id}`)} 
+                      onClick={() => navigate(`/users/${user._id}`)}
                     >
                       Edit
                     </Button>

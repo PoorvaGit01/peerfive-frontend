@@ -1,10 +1,10 @@
-import  { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Header from '../components/Navbar';
+import axios from 'axios';
 
-// Create a dark theme
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -25,22 +25,45 @@ const RewardsHistory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [rewardsBalance] = useState(150);  
-  const [history] = useState([
-    { id: '1', dateTime: '2024-12-01T10:00:00', rewardsReceived: 10, userName: 'John Doe' },
-    { id: '2', dateTime: '2024-12-02T12:30:00', rewardsReceived: 5, userName: 'Jane Smith' },
-    { id: '3', dateTime: '2024-12-03T14:15:00', rewardsReceived: 20, userName: 'Alice Johnson' },
-    { id: '4', dateTime: '2024-12-04T16:45:00', rewardsReceived: 15, userName: 'Bob Lee' },
-  ]);
+  const [rewardsBalance, setRewardsBalance] = useState<number>();  
+  const [history, setHistory] = useState<any[]>([]);  
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/users/${id}/rewards`);
+        const transactions = response.data;
+
+        const updatedHistory = await Promise.all(
+          transactions.map(async (transaction: any) => {
+            const userResponse = await axios.get(`http://localhost:3000/users/${transaction.givenTo}`);
+            return {
+              ...transaction,
+              userName: userResponse.data.name,
+            };
+          })
+        );
+
+        setHistory(updatedHistory);
+
+        const res = await axios.get(`http://localhost:3000/users/${id}`);
+        setRewardsBalance(res.data.p5Balance);
+      } catch (error) {
+        console.error('Error fetching rewards history:', error);
+      }
+    };
+
+    fetchHistory();
+  }, [id]); 
 
   return (
     <ThemeProvider theme={theme}>
-      <Header></Header>
-      <div style={{marginTop:"70px"}}>
-      <h1>Create New Reward</h1>
+      <Header />
+      <div style={{ marginTop: "70px" }}>
+        <h1>Rewards History</h1>
         <div>
-          <p>Rewards Balance: {rewardsBalance}</p>
-          <Button variant="contained" onClick={() => navigate(`/${id}/rewards/new`)} style={{marginBottom:"10px"}}>
+          <p>P5 Balance: {rewardsBalance}</p>
+          <Button variant="contained" onClick={() => navigate(`/${id}/rewards/new`)} style={{ marginBottom: "10px" }}>
             Create New Reward
           </Button>
         </div>
@@ -56,10 +79,10 @@ const RewardsHistory = () => {
             </TableHead>
             <TableBody>
               {history.map((transaction, index) => (
-                <TableRow key={transaction.id}>
+                <TableRow key={transaction._id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{new Date(transaction.dateTime).toLocaleString()}</TableCell>
-                  <TableCell>{transaction.rewardsReceived}</TableCell>
+                  <TableCell>{transaction.points}</TableCell>
                   <TableCell>{transaction.userName}</TableCell>
                 </TableRow>
               ))}

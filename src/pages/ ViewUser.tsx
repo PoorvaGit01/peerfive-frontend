@@ -29,17 +29,16 @@ const ViewUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [user, setUser] = useState<any | null>(null); // Store user data
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [user, setUser] = useState<any | null>(null); 
+  const [loading, setLoading] = useState<boolean>(false); 
+  const [error, setError] = useState<string | null>(null); 
 
-  // Fetch user data when component mounts
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`http://localhost:3000/users/${id}`);
-        setUser(response.data); // Assuming the API returns a user object
+        setUser(response.data); 
       } catch (err) {
         setError('Failed to fetch user details.');
       } finally {
@@ -93,7 +92,7 @@ const ViewUser = () => {
                   variant="outlined"
                   onClick={() => navigate(`/${id}/rewards`)}
                 >
-                  View Reward Balance: {user.rewardsBalance}
+                  View Reward Balance: {user.rewardBalance}
                 </Button>
               </div>
             </>

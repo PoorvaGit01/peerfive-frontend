@@ -16,7 +16,6 @@ import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Define custom styles
 const useStyles = makeStyles({
   container: {
     margin: "2rem",
@@ -39,7 +38,6 @@ const useStyles = makeStyles({
   },
 });
 
-// Define the user type
 interface User {
   _id: string;
   name: string;
@@ -60,13 +58,12 @@ const UsersList: React.FC = () => {
     },
   });
 
-  // Fetch users from the API
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
         const response = await axios.get<User[]>("http://localhost:3000/users");
-        setUsers(response.data); // Assuming the API returns an array of users
+        setUsers(response.data); 
       } catch (err) {
         setError("Failed to fetch users.");
       } finally {
@@ -91,7 +88,6 @@ const UsersList: React.FC = () => {
           </Button>
         </div>
 
-        {/* Show loading or error messages */}
         {loading && <Typography variant="h6">Loading...</Typography>}
         {error && (
           <Typography variant="h6" color="error">

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosHeaders } from 'axios';
 
-// Type for API response data
 interface ApiResponse<T> {
   data: T;
   error: string | null;
@@ -12,12 +11,11 @@ const useApi = <T,>(initialUrl: string) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // A single function to handle all types of API calls (GET, POST, PUT, DELETE)
   const apiCall = async (
     url: string = initialUrl,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
     body: any = null,
-    headers: AxiosHeaders | undefined = undefined // Default to undefined
+    headers: AxiosHeaders | undefined = undefined 
   ) => {
     setLoading(true);
     setError(null);
@@ -27,10 +25,9 @@ const useApi = <T,>(initialUrl: string) => {
         url,
         method,
         data: body,
-        headers, // Accepting either AxiosHeaders or undefined
+        headers, 
       });
 
-      // Check for errors in the response and set state accordingly
       if (response.data.error) {
         setError(response.data.error);
       } else {
@@ -43,7 +40,6 @@ const useApi = <T,>(initialUrl: string) => {
     }
   };
 
-  // Return data, loading state, error, and the apiCall function itself
   return { data, loading, error, apiCall };
 };
 
